@@ -7,8 +7,7 @@ namespace MathGame
     {
         static void Main(string[] args)
         {
-            List<int> history= new List<int>();
-
+            List<GameHistory> history = new List<GameHistory>();
             while (true)
             {
                 var choice = AnsiConsole.Prompt(new SelectionPrompt<string>().Title("* * MENU * * ").AddChoices("Quiz me ..", "Previous Scores", "Exit"));
@@ -19,29 +18,36 @@ namespace MathGame
                     case "Quiz me ..":
                         var timer = new Stopwatch();
                         timer.Start();
-                        Console.WriteLine(" what is  5 + 5");
-                        int result1 = Convert.ToInt32(Console.ReadLine());
-                        points = MathOperation("add", result1, points);
-
-                        Console.WriteLine("What is 10 - 2");
-                        int result2 = Convert.ToInt32(Console.ReadLine());
-                        points = MathOperation("sub", result2, points);
-
-                        Console.WriteLine("what is  9 * 5");
-                        int result3 = Convert.ToInt32(Console.ReadLine());
-                        points = MathOperation("mul", result3, points);
-                        Console.WriteLine("What is 10 / 10");
-                        int result4 = Convert.ToInt32(Console.ReadLine());
-                        points = MathOperation("div", result4, points);
+                        var op  = AnsiConsole.Prompt(new SelectionPrompt<string>().Title("Choose an operation:").AddChoices("+", "-", "*", "/"));
+                        points = MathOperation(op);
                         timer.Stop();
-                        TimeSpan timeTaken = timer.Elapsed;
-                        Console.WriteLine($"Time taken:  {timeTaken}");
-                        history.Add( points);
+
+                        history.Add(new GameHistory
+                        {
+                            Date = DateTime.Now,
+                            GameType = op,
+                            Score = points,
+                            TimeTaken = timer.Elapsed
+                        });
+
                         break;
                     case "Previous Scores":
-                        for (int i = 0; i < history.Count; i++)
+                        if (history.Count == 0)
                         {
-                            Console.WriteLine($"Attempt {i+1} : points {history[i]} ");
+                            Console.WriteLine("No games played yet.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("\nGame History\n");
+
+                            foreach (var game in history)
+                            {
+                                Console.WriteLine(
+                                    $"Date : {game.Date:dd-MM-yyyy HH:mm:ss}\n" +
+                                    $"Game : {game.GameType}\n" +
+                                    $"Score: {game.Score}\n" +
+                                    $"Time : {game.TimeTaken.TotalSeconds:F2} seconds\n");
+                            }
                         }
                         break;
                     case "Exit":
@@ -57,20 +63,103 @@ namespace MathGame
             }
         }
 
-        static int MathOperation(string operation, int result, int points)
+        static int MathOperation(string op)
         {
-            if (operation == "add" && result == 10 || operation == "sub" && result == 8 || operation == "div" && result == 1 || operation == "mul" && result == 45)
+            Random random = new Random();
+            int points = 0;
+            int count = 0;
+            while (count < 5)
             {
-                Console.WriteLine("Correct answer");
-                points += 10;
-                
+                int a = random.Next(1, 100);
+                int b = random.Next(1, 100);
+                int  answer = 0;
+                switch (op)
+                {
+
+                    case "+":
+
+                        Console.WriteLine($"What is {a} + {b} ");
+                        if (!int.TryParse(Console.ReadLine(), out answer))
+                        {
+                            Console.WriteLine("Invalid input.");
+                        }
+                        else if (answer == a + b)
+                        {
+                            Console.WriteLine("Correct!");
+                            points += 10;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Wrong! The correct answer is {a + b}");
+                        }
+                        break;
+                    case "-":
+                        Console.WriteLine($"What is {a} - {b}");
+                        if (!int.TryParse(Console.ReadLine(), out answer))
+                        {
+                            Console.WriteLine("Invalid input.");
+                        }
+                        else if (answer == a - b)
+                        {
+                            Console.WriteLine("Correct!");
+                            points += 10;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Wrong! The correct answer is {a + b}");
+                        }
+                        break;
+                    case "*":
+                        Console.WriteLine($"What is {a} * {b}");
+                        if (!int.TryParse(Console.ReadLine(), out answer))
+                        {
+                            Console.WriteLine("Invalid input.");
+                        }
+                        else if (answer == a * b)
+                        {
+                            Console.WriteLine("Correct!");
+                            points += 10;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Wrong! The correct answer is {a + b}");
+                        }
+                        break;
+                    case "/":
+                        Console.WriteLine($"What is {a} / {b}");
+                        if (!int.TryParse(Console.ReadLine(), out answer))
+                        {
+                            Console.WriteLine("Invalid input.");
+                        }
+                        else if (answer == a / b)
+                        {
+                            Console.WriteLine("Correct!");
+                            points += 10;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Wrong! The correct answer is {a + b}");
+                        }
+                        break;
+
+                    default:
+                        Console.WriteLine("Invalid operation");
+                        break;
+                }
+                count++;
             }
-            else 
-            Console.WriteLine("Wrong answer");
 
             return points;
 
         }
-    
+
+        class GameHistory
+        {
+            public DateTime Date { get; set; }
+            public string GameType { get; set; }
+            public int Score { get; set; }
+            public TimeSpan TimeTaken { get; set; }
+        }
+
     }
 }
